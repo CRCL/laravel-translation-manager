@@ -115,7 +115,7 @@
     </div>
 </header>
 <div class="container-fluid">
-    <p>Warning, translations are not visible until they are exported back to the app/lang file, using <code>php artisan translation:export</code> command or publish button.</p>
+    <p>Warning, translations are not visible until they are exported back to the app/lang file, using <code>php artisan translations:export</code> command or publish button.</p>
     <div class="alert alert-success success-import" style="display:none;">
         <p>Done importing, processed <strong class="counter">N</strong> items! Reload this page to refresh the groups!</p>
     </div>

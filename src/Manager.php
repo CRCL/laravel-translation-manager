@@ -266,7 +266,7 @@ class Manager
                 }
 
                 $tree = $this->makeTree(Translation::ofTranslatedGroup($group)
-                                                    ->orderByGroupKeys(Arr::get($this->config, 'sort_keys', false))
+                                                    ->orderByGroupKeys(Arr::get($this->config, 'sort_keys', true))
                                                     ->get());
 
                 foreach ($tree as $locale => $groups) {
@@ -337,7 +337,11 @@ class Manager
         $this->events->dispatch(new TranslationsExportedEvent());
     }
 
-    protected function makeTree($translations, $json = false)
+    /**
+     * @param Translation[]|\Illuminate\Database\Eloquent\Collection $translations
+     * @return array = ["en" => ["auth" => ["failed" => "These credentials do not match our records.", "throttle" => "Too many login attempts. Please try again in :seconds seconds."]]]
+     */
+    protected function makeTree($translations, $json = false): array
     {
         $array = [];
         foreach ($translations as $translation) {

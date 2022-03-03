@@ -14,14 +14,14 @@ class ExportCommand extends Command
      *
      * @var string
      */
-    protected $name = 'translations:export {group}';
+    protected $name = 'translations:export {group?} {--all} {--json}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Export translations to PHP files';
+    protected $description = 'Export translations to PHP files. Group * is all groups (same as --all)';
 
     /** @var \Barryvdh\TranslationManager\Manager */
     protected $manager;
