@@ -1,4 +1,4 @@
-## Laravel Translation Manager xx
+## Laravel Translation Manager
 
 [![Tests](https://github.com/barryvdh/laravel-translation-manager/actions/workflows/run-tests.yml/badge.svg)](https://github.com/barryvdh/laravel-translation-manager/actions)
 [![Packagist License](https://poser.pugx.org/barryvdh/laravel-translation-manager/license.png)](http://choosealicense.com/licenses/mit/)
