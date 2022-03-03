@@ -28,13 +28,17 @@
   "autoload": {
     "psr-4": {
       "Barryvdh\\TranslationManager\\": "src/"
-    }
+    },
+    "files": [
+        "src/global_functions.php"
+    ]
   },
   "autoload-dev": {
     "psr-4": {
       "Barryvdh\\TranslationManager\\Tests\\": "tests/"
     }
   },
+
   "extra": {
     "branch-alias": {
       "dev-master": "0.6-dev"

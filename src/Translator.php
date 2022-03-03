@@ -25,7 +25,7 @@ class Translator extends LaravelTranslator {
 
             // Reget with fallback
             $result = parent::get($key, $replace, $locale, $fallback);
-            
+
         }
 
         return $result;
