@@ -16,6 +16,8 @@ use DB;
  * @property \Carbon\Carbon $updated_at
  * @property string $seen_in_file
  * @property string $seen_in_url
+ * @property string $default_missing_value
+ * @property string $default_missing_locale
  */
 class Translation extends Model{
 

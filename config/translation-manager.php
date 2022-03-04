@@ -36,6 +36,9 @@ return [
      */
     'exclude_groups' => [],
 
+    //skip finding these groups via translations:find as they for example can contain dynamically defined keys (say __('api.' . $myModel->id . ')
+    'skip_find_groups' => [],
+
     /**
      * Exclude specific languages from Laravel Translation Manager.
      *
@@ -64,6 +67,7 @@ return [
         '@choice',
         '__',
         '$trans.get',
+        '_t',
     ],
 
     'learn_new_keys' => env('TRANSLATIONS_LEARN_NEW_KEYS', false)

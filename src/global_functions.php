@@ -3,7 +3,10 @@
 
 use Barryvdh\TranslationManager\Manager;
 
-function _t($key, array $replace = array(), $locale = null, $fallback = true){
+/**
+ * @param ?string $mv default missing value
+ */
+function _t($key, array $replace = array(), $locale = null, $fallback = true, ?string $mv = null, $defaultMissingValueLocale = 'en'){
     /** @var \Statamic\Extensions\Translation\Translator $translator */
     $translator = app('translator');
 
@@ -16,7 +19,7 @@ function _t($key, array $replace = array(), $locale = null, $fallback = true){
     if($result === $key){
         list($namespace, $group, $item) = $translator->parseKey($key);
         if($tManager && $tManager->getConfig('learn_new_keys') && $namespace === '*' && $group && $item ){
-            $tManager->missingKey($namespace, $group, $item, url: request()->path());
+            $tManager->missingKey($namespace, $group, $item, url: ! app()->runningInConsole() ? request()->path() : null, defaultMissingValue: $mv, defaultMissingValueLocale: $defaultMissingValueLocale);
         }
 
         // Reget with fallback

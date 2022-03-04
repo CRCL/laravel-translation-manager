@@ -166,12 +166,15 @@ class Manager
         $keyToFileMap = [];
 
         $functions = $this->config['trans_functions'];
+        $skipFindingGroups = $this->config['skip_find_groups'];
+        $skipFindingGroups = collect($skipFindingGroups)->map(fn($el) => ('?!' . $el . '\.'))->toArray();
 
         $groupPattern =                          // See https://regex101.com/r/WEJqdL/6
             "[^\w|>]".                          // Must not have an alphanum or _ or > before real method
             '('.implode('|', $functions).')'.  // Must start with one of the functions
             "\(".                               // Match opening parenthesis
             "[\'\"]".                           // Match " or '
+            ($skipFindingGroups ? '('.implode('|', $skipFindingGroups).')' : '') .                         //don't match group api
             '('.                                // Start a new group to match:
             '[a-zA-Z0-9_-]+'.               // Must start with group
             "([.](?! )[^\1)]+)+".             // Be followed by one or more items/keys
@@ -246,16 +249,23 @@ class Manager
         return count($groupKeys + $stringKeys);
     }
 
-    public function missingKey($namespace, $group, $key, $url = null, $filename = null)
+    public function missingKey($namespace, $group, $key, $url = null, $filename = null, $defaultMissingValue = null, $defaultMissingValueLocale = 'en')
     {
         if (! in_array($group, $this->config['exclude_groups'])) {
-            Translation::firstOrCreate([
-                'locale' => $this->app['config']['app.locale'],
-                'group'  => $group,
-                'key'    => $key,
-                'seen_in_url' => $url,
+            $data = [
+                'locale'       => ($defaultMissingValue && $defaultMissingValueLocale) ? $defaultMissingValueLocale : $this->app['config']['app.locale'],
+                'group'        => $group,
+                'key'          => $key,
+                'seen_in_url'  => $url,
                 'seen_in_file' => $filename,
-            ]);
+            ];
+
+            if($defaultMissingValue){
+                $data['default_missing_value'] = $defaultMissingValue;
+                $data['default_missing_locale'] = $defaultMissingValueLocale;
+            }
+
+            Translation::firstOrCreate($data);
         }
     }
 
