@@ -163,6 +163,8 @@ class Manager
         $path = $path ?: base_path();
         $groupKeys = [];
         $stringKeys = [];
+        $keyToFileMap = [];
+
         $functions = $this->config['trans_functions'];
 
         $groupPattern =                          // See https://regex101.com/r/WEJqdL/6
@@ -196,9 +198,12 @@ class Manager
             if (preg_match_all("/$groupPattern/siU", $file->getContents(), $matches)) {
                 // Get all matches
                 foreach ($matches[2] as $key) {
-                    $groupKeys[] = $key;
+                    $groupKeys[]        = $key;
+                    $aFolders              = explode('/', $file->getPath());
+                    $keyToFileMap[$key] =  end($aFolders) . '/' .$file->getFilename();
                 }
             }
+
 
             if (preg_match_all("/$stringPattern/siU", $file->getContents(), $matches)) {
                 foreach ($matches['string'] as $key) {
@@ -214,10 +219,12 @@ class Manager
                     if (! (Str::contains($key, '::') && Str::contains($key, '.'))
                          || Str::contains($key, ' ')) {
                         $stringKeys[] = $key;
+                        $keyToFileMap[$key] = $file->getFilename();
                     }
                 }
             }
         }
+
         // Remove duplicates
         $groupKeys = array_unique($groupKeys);
         $stringKeys = array_unique($stringKeys);
@@ -226,26 +233,28 @@ class Manager
         foreach ($groupKeys as $key) {
             // Split the group and item
             list($group, $item) = explode('.', $key, 2);
-            $this->missingKey('', $group, $item);
+            $this->missingKey('', $group, $item, filename: $keyToFileMap[$key]);
         }
 
         foreach ($stringKeys as $key) {
             $group = self::JSON_GROUP;
             $item = $key;
-            $this->missingKey('', $group, $item);
+            $this->missingKey('', $group, $item, filename: $keyToFileMap[$key]);
         }
 
         // Return the number of found translations
         return count($groupKeys + $stringKeys);
     }
 
-    public function missingKey($namespace, $group, $key)
+    public function missingKey($namespace, $group, $key, $url = null, $filename = null)
     {
         if (! in_array($group, $this->config['exclude_groups'])) {
             Translation::firstOrCreate([
                 'locale' => $this->app['config']['app.locale'],
                 'group'  => $group,
                 'key'    => $key,
+                'seen_in_url' => $url,
+                'seen_in_file' => $filename,
             ]);
         }
     }

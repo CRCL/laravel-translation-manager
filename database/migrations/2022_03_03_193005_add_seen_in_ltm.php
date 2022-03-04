@@ -15,8 +15,8 @@ class AddSeenInLtm extends Migration {
 	{
         Schema::table('ltm_translations', function(Blueprint $table)
         {
-            $table->text('seen_in_files')->nullable();
-            $table->text('seen_in_urls')->nullable();
+            $table->text('seen_in_file')->nullable();
+            $table->text('seen_in_url')->nullable();
         });
 	}
 
@@ -29,8 +29,8 @@ class AddSeenInLtm extends Migration {
 	{
         Schema::table('ltm_translations', function (Blueprint $table) {
             $table->dropColumn([
-                'seen_in_files',
-                'seen_in_urls'
+                'seen_in_file',
+                'seen_in_url'
             ]);
         });
 	}

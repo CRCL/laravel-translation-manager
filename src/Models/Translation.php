@@ -14,8 +14,8 @@ use DB;
  * @property string  $value
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
- * @property string $seen_in_files
- * @property string $seen_in_urls
+ * @property string $seen_in_file
+ * @property string $seen_in_url
  */
 class Translation extends Model{
 

@@ -66,4 +66,6 @@ return [
         '$trans.get',
     ],
 
+    'learn_new_keys' => env('TRANSLATIONS_LEARN_NEW_KEYS', false)
+
 ];
