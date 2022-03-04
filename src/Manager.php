@@ -288,6 +288,7 @@ class Manager
                                                     ->orderByGroupKeys(Arr::get($this->config, 'sort_keys', true))
                                                     ->get());
 
+
                 foreach ($tree as $locale => $groups) {
                     if (isset($groups[$group])) {
                         $translations = $groups[$group];
@@ -343,7 +344,7 @@ class Manager
 
     public function exportAllTranslations()
     {
-        $groups = Translation::whereNotNull('value')->selectDistinctGroup()->get('group');
+        $groups = Translation::whereNotNull('value')->orWhereNotNull('default_missing_value')->selectDistinctGroup()->get('group');
 
         foreach ($groups as $group) {
             if ($group->group == self::JSON_GROUP) {
@@ -366,10 +367,10 @@ class Manager
         foreach ($translations as $translation) {
             if ($json) {
                 $this->jsonSet($array[$translation->locale][$translation->group], $translation->key,
-                    $translation->value);
+                    $translation->getDisplayValue());
             } else {
                 Arr::set($array[$translation->locale][$translation->group], $translation->key,
-                    $translation->value);
+                    $translation->getDisplayValue());
             }
         }
 
