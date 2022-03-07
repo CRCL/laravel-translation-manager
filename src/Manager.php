@@ -51,6 +51,29 @@ class Manager
         return ($result && is_array($result)) ? $result : [];
     }
 
+    public function getGroupPattern(array $functions, array $skipFindingGroups): string
+    {
+        $skipFindingGroups = collect($skipFindingGroups)->map(fn($el) => ('?!' . $el . '\.'))->toArray();
+
+        $groupPattern =                          // See https://regex101.com/r/WEJqdL/6
+            "[^\w|>]" .                          // Must not have an alphanum or _ or > before real method
+            '(' . implode('|', $functions) . ')' .  // Must start with one of the functions
+            "\(" .                               // Match opening parenthesis
+            "[\'\"]" .                           // Match " or '
+            ($skipFindingGroups ? '(' . implode(
+                    '|',
+                    $skipFindingGroups
+                ) . ')' : '') .                         //don't match group api, notice these strings all include ?! at the start to skip matching
+            '(' .                                // Start a new group to match:
+            '[a-zA-Z0-9_-]+' .                  // Must start with group
+            "([.](?! )[^\1)]+)+" .               // Be followed by one or more items/keys
+            ')' .                                // Close group
+            "[\'\"]" .                           // Closing quote
+            "(.*)\)";                           //match rest until matching closing parenthesis
+
+        return $groupPattern;
+    }
+
     public function importTranslations($replace = false, $base = null, $import_group = false)
     {
         $counter = 0;
@@ -158,6 +181,7 @@ class Manager
         return true;
     }
 
+
     public function findTranslations($path = null)
     {
         $path = $path ?: base_path();
@@ -167,20 +191,8 @@ class Manager
 
         $functions = $this->config['trans_functions'];
         $skipFindingGroups = $this->config['skip_find_groups'];
-        $skipFindingGroups = collect($skipFindingGroups)->map(fn($el) => ('?!' . $el . '\.'))->toArray();
 
-        $groupPattern =                          // See https://regex101.com/r/WEJqdL/6
-            "[^\w|>]".                          // Must not have an alphanum or _ or > before real method
-            '('.implode('|', $functions).')'.  // Must start with one of the functions
-            "\(".                               // Match opening parenthesis
-            "[\'\"]".                           // Match " or '
-            ($skipFindingGroups ? '('.implode('|', $skipFindingGroups).')' : '') .                         //don't match group api, notice these strings all include ?! at the start to skip matching
-            '('.                                // Start a new group to match:
-            '[a-zA-Z0-9_-]+'.               // Must start with group
-            "([.](?! )[^\1)]+)+".             // Be followed by one or more items/keys
-            ')'.                                // Close group
-            "[\'\"]".                           // Closing quote
-            "[\),]";                            // Close parentheses or new parameter
+        $groupPattern = $this->getGroupPattern($functions, $skipFindingGroups);
 
         $stringPattern =
             "[^\w]".                                     // Must not have an alphanum before real method

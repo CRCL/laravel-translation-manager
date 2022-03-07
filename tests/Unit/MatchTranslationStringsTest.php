@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 
+use Barryvdh\TranslationManager\Manager;
 use Tests\TestCase;
 
 class MatchTranslationStringsTest extends TestCase
@@ -15,6 +16,8 @@ class MatchTranslationStringsTest extends TestCase
     public function test_can_match()
     {
 
+        $manager = app(Manager::class);
+
 
         $html = <<<EOT
        <div>{{ _t('abb.mykeyyy333aa') }}</div>
@@ -26,17 +29,7 @@ class MatchTranslationStringsTest extends TestCase
 EOT;
 
 
-        $groupPattern =                          // See https://regex101.com/r/WEJqdL/6
-            "[^\w|>]" .                          // Must not have an alphanum or _ or > before real method
-            '(' . implode('|', ['_t']) . ')' .  // Must start with one of the functions
-            "\(" .                               // Match opening parenthesis
-            "[\'\"]" .                           // Match " or '
-            '(' .                                // Start a new group to match:
-            '[a-zA-Z0-9_-]+' .               // Must start with group
-            "([.](?! )[^\1)]+)+" .             // Be followed by one or more items/keys
-            ')' .                                // Close group
-            "[\'\"]" .                           // Closing quote
-            "(.*)\)"; //match rest until matching closing parenthesis
+        $groupPattern = $manager->getGroupPattern(['_t'], ['api']);
 
         if (preg_match_all("/$groupPattern/siU", $html, $matches)) {
 //             Get all matches
@@ -65,7 +58,6 @@ EOT;
                 }
             }
         }
-
         self::assertNull($groupDefaultValues[0]);
 
         self::assertEquals("one one 11my default value", $groupDefaultValues[1]);
