@@ -174,7 +174,7 @@ class Manager
             '('.implode('|', $functions).')'.  // Must start with one of the functions
             "\(".                               // Match opening parenthesis
             "[\'\"]".                           // Match " or '
-            ($skipFindingGroups ? '('.implode('|', $skipFindingGroups).')' : '') .                         //don't match group api
+            ($skipFindingGroups ? '('.implode('|', $skipFindingGroups).')' : '') .                         //don't match group api, notice these strings all include ?! at the start to skip matching
             '('.                                // Start a new group to match:
             '[a-zA-Z0-9_-]+'.               // Must start with group
             "([.](?! )[^\1)]+)+".             // Be followed by one or more items/keys
