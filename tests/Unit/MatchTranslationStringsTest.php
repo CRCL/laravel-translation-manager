@@ -8,6 +8,8 @@ use Tests\TestCase;
 
 class MatchTranslationStringsTest extends TestCase
 {
+
+
     /**
      * A basic unit test example.
      *
@@ -19,13 +21,14 @@ class MatchTranslationStringsTest extends TestCase
         $manager = app(Manager::class);
 
 
+        //using api as group so it gets ignored by translations:find
         $html = <<<EOT
-       <div>{{ _t('abb.mykeyyy333aa') }}</div>
-       <div>{{ _t('abb.mykeyyy11', ['aaa' => 'bb'], dv: 'one one 11my default value') }}</div>
-       <div>{{ _t('abb.mykeyyy222', dv: "22222my default value") }}</div>
-       <div>{{ _t('abb.mykeyyy222bb', dv: "333 3 my default value hana's church") }}</div>
-       <div>{{ _t('abb.mykeyyy333bb', 'en_US') }}</div>
-       <div>{{ _t('abb.mykeyyy4444') }}</div>
+       <div>{{ _t('api.mykeyyy333aa') }}</div>
+       <div>{{ _t('api.mykeyyy11', ['aaa' => 'bb'], dv: 'one one 11my default value') }}</div>
+       <div>{{ _t('api.mykeyyy222', dv: "22222my default value") }}</div>
+       <div>{{ _t('api.mykeyyy222bb', dv: "333 3 my default value hana's church") }}</div>
+       <div>{{ _t('api.mykeyyy333bb', 'en_US') }}</div>
+       <div>{{ _t('api.mykeyyy4444') }}</div>
 EOT;
 
 
@@ -40,22 +43,9 @@ EOT;
             $groupDefaultValues = [];
 
             foreach($matches[4] as $optionalArguments){
-                //example matches
-//                array:6 [
-//                    0 => ", ['aaa' => 'bb'], dv: 'my default value'"
-//                    1 => ", dv: "my default value""
-//                    2 => ", dv: "my default value hana's church""
-//                    3 => ""
-//                    4 => ", 'en_US'"
-//                    5 => ""
-//                  ]
-                $matchDefaultValue =
-                    ".*dv:[^\"\']*[\"\'](.*)[\"\']";
-                if(preg_match_all("/$matchDefaultValue/siU", $optionalArguments, $dvMatches)){
-                    $groupDefaultValues[] = $dvMatches[1][0];
-                }else{
-                    $groupDefaultValues[] = null;
-                }
+                $groupDefaultValues[] = $manager->getDefaultValues(
+                    $optionalArguments,
+                );
             }
         }
         self::assertNull($groupDefaultValues[0]);

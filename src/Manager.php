@@ -74,6 +74,30 @@ class Manager
         return $groupPattern;
     }
 
+    /**
+     * @param string|null $textBehindGroup = ", ['aaa' => 'bb'], dv: 'my default value'"
+     * @return string|null
+     */
+    public function getDefaultValues(?string $textBehindGroup): ?string
+    {
+//               example values
+//                array:6 [
+//                    0 => ", ['aaa' => 'bb'], dv: 'my default value'"
+//                    1 => ", dv: "my default value""
+//                    2 => ", dv: "my default value hana's church""
+//                    3 => ""
+//                    4 => ", 'en_US'"
+//                    5 => ""
+//                  ]
+        $matchDefaultValue =
+            ".*dv:[^\"\']*[\"\'](.*)[\"\']";
+        if (preg_match_all("/$matchDefaultValue/siU", $textBehindGroup, $dvMatches)) {
+            return $dvMatches[1][0];
+        } else {
+            return null;
+        }
+    }
+
     public function importTranslations($replace = false, $base = null, $import_group = false)
     {
         $counter = 0;
@@ -207,6 +231,8 @@ class Manager
         $finder = new Finder();
         $finder->in($path)->exclude('storage')->exclude('vendor')->name('*.php')->name('*.twig')->name('*.vue')->files();
 
+        $groupDefaultValues = [];
+
         /** @var \Symfony\Component\Finder\SplFileInfo $file */
         foreach ($finder as $file) {
             // Search the current file for the pattern
@@ -216,6 +242,12 @@ class Manager
                     $groupKeys[]        = $key;
                     $aFolders              = explode('/', $file->getPath());
                     $keyToFileMap[$key] =  end($aFolders) . '/' .$file->getFilename();
+                }
+
+                foreach($matches[4] as $textBehindGroup){
+                    $groupDefaultValues[] = $this->getDefaultValues(
+                        $textBehindGroup,
+                    );
                 }
             }
 
@@ -245,10 +277,10 @@ class Manager
         $stringKeys = array_unique($stringKeys);
 
         // Add the translations to the database, if not existing.
-        foreach ($groupKeys as $key) {
+        foreach ($groupKeys as $index => $key) {
             // Split the group and item
             list($group, $item) = explode('.', $key, 2);
-            $this->missingKey('', $group, $item, filename: $keyToFileMap[$key]);
+            $this->missingKey('', $group, $item, filename: $keyToFileMap[$key], defaultValue: $groupDefaultValues[$index]);
         }
 
         foreach ($stringKeys as $key) {
@@ -261,20 +293,20 @@ class Manager
         return count($groupKeys + $stringKeys);
     }
 
-    public function missingKey($namespace, $group, $key, $url = null, $filename = null, $defaultMissingValue = null, $defaultMissingValueLocale = 'en')
+    public function missingKey($namespace, $group, $key, $url = null, $filename = null, $defaultValue = null, $defaultValueLocale = null)
     {
         if (! in_array($group, $this->config['exclude_groups'])) {
             $data = [
-                'locale'       => ($defaultMissingValue && $defaultMissingValueLocale) ? $defaultMissingValueLocale : $this->app['config']['app.locale'],
+                'locale'       => $this->app['config']['app.locale'],
                 'group'        => $group,
                 'key'          => $key,
                 'seen_in_url'  => $url,
                 'seen_in_file' => $filename,
             ];
 
-            if($defaultMissingValue){
-                $data['default_missing_value'] = $defaultMissingValue;
-                $data['default_missing_locale'] = $defaultMissingValueLocale;
+            if($defaultValue){
+                $data['default_missing_value'] = $defaultValue;
+                $data['default_missing_locale'] = $defaultValueLocale;
             }
 
             Translation::firstOrCreate($data);
