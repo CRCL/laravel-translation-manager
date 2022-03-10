@@ -13,6 +13,10 @@ function _t($key, array $replace = array(), $locale = null, $fallback = true, ?s
 
     /** @var \Barryvdh\TranslationManager\Manager $tManager */
     $tManager = app('translation-manager');
+    $forceDisplayKeys = $tManager->getConfig()['force_display_keys'];
+    if($forceDisplayKeys){
+        return $key;
+    }
 
     /** inspired by \Barryvdh\TranslationManager\Translator::get() */
     // Get without fallback
@@ -28,6 +32,10 @@ function _t($key, array $replace = array(), $locale = null, $fallback = true, ?s
 
         // Reget with fallback
         $result = $translator->get($key, $replace, $locale, $fallback);
+
+        if($result === $key && $dv){
+            $result = $dv;
+        }
 
     }
 
