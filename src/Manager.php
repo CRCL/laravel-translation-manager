@@ -297,7 +297,7 @@ class Manager
     {
         if (! in_array($group, $this->config['exclude_groups'])) {
             $data = [
-                'locale'       => $this->app['config']['app.locale'],
+                'locale'       => $this->config['default_locale_missing_key'] ?? $this->app['config']['app.locale'],
                 'group'        => $group,
                 'key'          => $key,
                 'seen_in_url'  => $url,

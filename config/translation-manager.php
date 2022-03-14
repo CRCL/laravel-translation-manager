@@ -70,6 +70,8 @@ return [
         '_t',
     ],
 
-    'learn_new_keys' => env('TRANSLATIONS_LEARN_NEW_KEYS', false)
+    'learn_new_keys' => env('TRANSLATIONS_LEARN_NEW_KEYS', false),
+    'force_display_keys' => env('TRANSLATIONS_FORCE_DISPLAY_KEYS', false),
+    'default_locale_missing_key' => env('TRANSLATIONS_DEFAULT_LOCALE_MISSING_KEY', 'en')
 
 ];
