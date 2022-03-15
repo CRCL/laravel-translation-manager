@@ -24,7 +24,11 @@ function _t($key, array $replace = array(), $locale = null, $fallback = true, ?s
     $result = $translator->get($key, $replace, $locale, false);
     if ($result === $key) {
         list($namespace, $group, $item) = $translator->parseKey($key);
-        if ($tManager && $tManager->getConfig('learn_new_keys') && $namespace === '*' && $group && $item) {
+
+        // Reget with fallback
+        $result = $translator->get($key, $replace, $locale, $fallback);
+
+        if ($result === $key && $tManager && $tManager->getConfig('learn_new_keys') && $namespace === '*' && $group && $item) {
             $tManager->missingKey(
                 $namespace,
                 $group,
@@ -35,8 +39,6 @@ function _t($key, array $replace = array(), $locale = null, $fallback = true, ?s
             );
         }
 
-        // Reget with fallback
-        $result = $translator->get($key, $replace, $locale, $fallback);
 
         if ($result === $key && $dv) {
             $result = $dv;

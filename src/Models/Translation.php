@@ -29,7 +29,10 @@ class Translation extends Model{
 
     public function scopeOfTranslatedGroup($query, $group)
     {
-        return $query->where('group', $group)->whereNotNull('value')->orWhereNotNull('default_missing_value');
+        return $query->where('group', $group)->where(function($q) {
+            $q->orWhereNotNull('value')
+                ->orWhereNotNull('default_missing_value');
+        });
     }
 
     public function scopeOrderByGroupKeys($query, $ordered) {
@@ -56,13 +59,13 @@ class Translation extends Model{
         return $query->select(DB::raw($select));
     }
 
-    public function getDisplayValue(): string {
-        if(! is_null($this->value) && $this->value !== ''){
+    public function getDisplayValue(): ?string {
+        if(! is_null($this->value)){
             return $this->value;
-        }elseif(! is_null($this->default_missing_value) && $this->default_missing_value !== ''){
+        }elseif(! is_null($this->default_missing_value)){
             return $this->default_missing_value;
         }else{
-            return '';
+            return null;
         }
 
 

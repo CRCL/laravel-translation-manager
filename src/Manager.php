@@ -304,7 +304,7 @@ class Manager
                 'seen_in_file' => $filename,
             ];
 
-            if($defaultValue){
+            if(! is_null($defaultValue)){ //not null means we allow empty values to be set and returned. This is needed as sometimes things are supposed to be empty actually instead of giving a key (for programmatically generated translations)
                 $data['default_missing_value'] = $defaultValue;
                 $data['default_missing_locale'] = $defaultValueLocale;
             }
